@@ -1,0 +1,251 @@
+import { useRouter } from 'next/router'
+import Head from "next/head";
+import React, { useEffect, useState } from 'react'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+const MyAccount = () => {
+    const router = useRouter();
+
+    const [name, setName] = useState('')
+    const [email, setEmail] = useState('')
+    const [phone, setPhone] = useState('')
+    const [address, setAddress] = useState('')
+    const [pincode, setPincode] = useState('')
+    const [password, setPassword] = useState('')
+    const [cpassword, setCpassword] = useState('')
+    const [npassword, setNpassword] = useState('')
+    const [user, setUser] = useState('')
+
+
+
+    useEffect(() => {
+        const myuser = JSON.parse(localStorage.getItem('myuser'))
+        if (!myuser) {
+            router.push('/')
+        }
+        if (myuser && myuser.token) {
+            setUser(myuser)
+            setEmail(myuser.email)
+            fetchData(myuser.token)
+        }
+    }, [])
+
+    const fetchData = async (token) => {
+        let data = { token: token }
+        let a = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/getuser`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        let res = await a.json();
+        setName(res.name);
+        setAddress(res.address);
+        setPhone(res.phone);
+        setPincode(res.pincode);
+    }
+
+    const handleUserSubmit = async () => {
+
+        let data = { token: user.token, address, name, phone, pincode }
+        let a = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/updateuser`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        let res = await a.json();
+        if (res.success) {
+            toast.success("Successfully Updated Details!", {
+                position: "top-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        }
+        else {
+            toast.success("Error details!", {
+                position: "top-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        }
+    }
+    const handlePasswordSubmit = async () => {
+        let res;
+        if (npassword == cpassword) {
+
+
+            let data = { token: user.token, password, cpassword, npassword }
+            let a = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/updatepassword`, {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            res = await a.json();
+        }
+        else {
+            res = { success: false }
+        }
+        if (res.success) {
+            toast.success("Successfully Updated Password!", {
+                position: "top-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        }
+        else {
+            toast.error("Error Updating Password!", {
+                position: "top-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        }
+        setPassword('')
+        setNpassword('')
+        setCpassword('')
+    }
+
+    const handleChange = async (e) => {
+
+        if (e.target.name == 'name') {
+            setName(e.target.value);
+        }
+        else if (e.target.name == 'phone') {
+            setPhone(e.target.value);
+        }
+        else if (e.target.name == 'address') {
+            setAddress(e.target.value);
+        }
+        else if (e.target.name == 'pincode') {
+            setPincode(e.target.value);
+        }
+        else if (e.target.name == 'password') {
+            setPassword(e.target.value);
+        }
+        else if (e.target.name == 'cpassword') {
+            setCpassword(e.target.value);
+        }
+        else if (e.target.name == 'npassword') {
+            setNpassword(e.target.value);
+        }
+
+    }
+
+    return (
+        <>
+            <Head>
+                <title>Codeswear - My Account</title>
+                <meta name="description" content="Generated by create next app" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
+            <div className='conatiner mx-auto my-9'>
+                <ToastContainer
+                    position="top-left"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                />
+                <h1 className='text-3xl text-center font-bold'>Update Your Account</h1>
+                <h2 className='mx-4 md:mx-20 font-semibold'>1. Delivery details</h2>
+                <div className="mx-4 md:mx-20 my-2 flex w-[80vw]">
+                    <div className='px-2 w-1/2'>
+                        <div className="mb-4">
+                            <label htmlFor="name" className="leading-7 text-sm text-gray-600">Name</label>
+                            <input value={name} onChange={handleChange} type="text" id="name" name="name" className="w-full bg-white rounded border border-gray-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+                        </div>
+                    </div>
+                    <div className='px-2 w-1/2'>
+                        <div className="mb-4">
+                            <label htmlFor="email" className="leading-7 text-sm text-gray-600">Email(cannot be Update)</label>
+                            {user && user.token ? <input readOnly value={user.email} type="email" id="email" name="email" className="w-full bg-white rounded border border-gray-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+                                : <input value={email} onChange={handleChange} type="email" id="email" name="email" className="w-full bg-white rounded border border-gray-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div className='px-2 w-[80vw] mx-4 md:mx-20'>
+                    <div className="mb-4">
+                        <label htmlFor="address" className="leading-7 text-sm text-gray-600">Address</label>
+                        <textarea onChange={handleChange} value={address} name="address" id="address" cols="30" rows="3" className="w-full bg-white rounded border border-gray-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"></textarea>
+                    </div>
+                </div>
+                <div className="mx-4 md:mx-20 my-2 flex w-[80vw]">
+                    <div className='px-2 w-1/2'>
+                        <div className="mb-4">
+                            <label htmlFor="phone" className="leading-7 text-sm text-gray-600">Phone Number</label>
+                            <input placeholder='your 10-digit Phone Number' value={phone} onChange={handleChange} type="phone" id="phone" name="phone" className="w-full bg-white rounded border border-gray-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+                        </div>
+                    </div>
+                    <div className='px-2 w-1/2'>
+                        <div className="mb-4">
+                            <label htmlFor="pincode" className="leading-7 text-sm text-gray-600">Pincode</label>
+                            <input value={pincode} onChange={handleChange} type="text" id="pincode" name="pincode" className="w-full bg-white rounded border border-gray-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+                        </div>
+                    </div>
+                </div>
+                <button onClick={handleUserSubmit} className="flex m-4 md:mx-24  text-white bg-pink-500 border-0 py-2 px-2 focus:outline-none hover:bg-pink-600 rounded text-sm"> Submit</button>
+
+                <h2 className='mx-4 md:mx-20 font-semibold'>2. phange Password</h2>
+                <div className="mx-4 md:mx-20 my-2 flex w-[80vw]">
+                    <div className='px-2 w-1/2'>
+                        <div className="mb-4">
+                            <label htmlFor="password" className="leading-7 text-sm text-gray-600">Password</label>
+                            <input value={password} onChange={handleChange} type="password" id="password" name="password" className="w-full bg-white rounded border border-gray-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+                        </div>
+                    </div>
+
+                    <div className='px-2 w-1/2'>
+                        <div className="mb-4">
+                            <label htmlFor="npassword" className="leading-7 text-sm text-gray-600">New Password</label>
+                            <input value={npassword} onChange={handleChange} type="password" id="npassword" name="npassword" className="w-full bg-white rounded border border-gray-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+                        </div>
+                    </div>
+                    <div className='px-2 w-1/2'>
+                        <div className="mb-4">
+                            <label htmlFor="cpassword" className="leading-7 text-sm text-gray-600">Confirm New Password</label>
+                            <input value={cpassword} onChange={handleChange} type="password" id="cpassword" name="cpassword" className="w-full bg-white rounded border border-gray-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+                        </div>
+                    </div>
+                </div>
+                <button onClick={handlePasswordSubmit} className="flex my-2 md:mx-24  text-white bg-pink-500 border-0 py-2 px-2 focus:outline-none hover:bg-pink-600 rounded text-sm"> Submit</button>
+            </div>
+        </>
+    )
+}
+
+
+export default MyAccount
